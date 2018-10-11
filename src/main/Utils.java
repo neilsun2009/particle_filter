@@ -7,6 +7,6 @@ public class Utils {
 	}
 	// Gaussian probability
 	public static double gaussian(double mu, double sigma, double x) {
-		return Math.exp(-Math.pow(mu-x, 2) / 2 * sigma * sigma) / (2 * Math.PI * sigma);
+		return Math.exp(-Math.pow(mu-x, 2) / (2 * sigma * sigma)) / Math.sqrt(2 * Math.PI * sigma);
 	}
 }

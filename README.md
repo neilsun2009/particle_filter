@@ -16,10 +16,10 @@ A simple implementation of particle filter.
   + int sensorCount: number of sensors.
   + double radius: radius for the particles to be randomly placed.
   + ParticleFilter(int count, Point center, double radius, Point[] sensors): initialize a set of particles.
-  + void reassignWeights(double[][] measurements, double sigma): // reassign normalized weights
+  + void reassignWeights(double[] measurements, double sigma): // reassign normalized weights
   + Point estimate(): get estimated location.
   + void resample(): resample based on the weights.
-  + *private* double[] calProbability(double[][] measurements, double sigma): calculate probabilities of all particles with regards of sensors.
+  + *private* double[] calProbability(double[] measurements, double sigma): calculate probabilities of all particles with regards of sensors.
 * **Utils**: A class with static math methods.
   + *static* double distance(Point p1, Point p2): Euclidean distance.
   + *static* double gaussian(double mu, double sigma, double x): Gaussian probability.

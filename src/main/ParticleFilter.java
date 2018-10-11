@@ -28,7 +28,7 @@ public class ParticleFilter {
 	}
 	
 	// reassign normalized weights
-	public void reassignWeights(double[][] measurements, double sigma) {
+	public void reassignWeights(double[] measurements, double sigma) {
 		double[] probs = calProbability(measurements, sigma);
 		double sum = 0.0;
 		for (int i = 0; i < count; ++i) {
@@ -54,6 +54,7 @@ public class ParticleFilter {
 	// resample based on the weights
 	// the new particles 
 	// arrange the candidates in the range of [0, 1]
+	// with accumulative probabilities
 	// select a random number in between
 	// and check which sub-range it belongs to (binary search)
 	public void resample() {
@@ -78,7 +79,7 @@ public class ParticleFilter {
 					r = mid;
 				}
 			}
-			Particle sample = particles[r];
+			Particle sample = particles[l];
 			Particle newParticle = new Particle(sample.pos, 1.0 / count);
 			newParticle.randomMove(radius);
 			newParticles[i] = newParticle;
@@ -88,11 +89,11 @@ public class ParticleFilter {
 	}
 	
 	// calculate probabilities of all particles with regards of sensors
-	// measurements size of (particleCount, sensorCount)
-	private double[] calProbability(double[][] measurements, double sigma) {
+	// measurements size of (sensorCount)
+	private double[] calProbability(double[] measurements, double sigma) {
 		double[] probs = new double[count];
 		for (int i = 0; i < count; ++i) {
-			probs[i] = this.particles[i].probability(this.sensors, sigma, measurements[i]);
+			probs[i] = this.particles[i].probability(this.sensors, sigma, measurements);
 		}
 		return probs;
 	}
