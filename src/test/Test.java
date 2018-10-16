@@ -7,7 +7,6 @@ import main.Point;
 public class Test {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		// suppose the map is 80*60
 		// four sensors are placed at the corner
 		// measurements are given with or without noise
@@ -21,23 +20,28 @@ public class Test {
 		double[] measurements = new double[] {72.11, 63.25, 44.72, 28.28};
 		double[] measurements_noise = new double[] {70.11, 65.25, 42, 30};
 		double noise = 0.7;
-		int iter_num = 50;
-		// init filters
-		ParticleFilter filter = new ParticleFilter(count, start, radius, sensors);
-		// iteration
-		for (int j = 0; j < iter_num; ++j) {
-			// reassign weights
-			filter.reassignWeights(measurements_noise, noise);
-			// estimate position
-			Point est = filter.estimate();
-			for (int i = 0; i < count; ++i) {
-				Particle p = filter.particles[i];
-				System.out.println("Particle No." + i + ": (" + p.pos.x + ", " + p.pos.y + "), weight:" + p.weight);
+		int iter_num = 100;
+		try {
+			// init filters
+			ParticleFilter filter = new ParticleFilter(count, start, radius, sensors, measurements_noise, noise);
+			// iteration
+			for (int j = 0; j < iter_num; ++j) {
+				// reassign weights
+				filter.reassignWeights();
+				// estimate position
+				Point est = filter.estimate();
+				for (int i = 0; i < count; ++i) {
+					Particle p = filter.getParticle(i);
+					System.out.println("Particle No." + i + ": (" + p.getPos().x + ", " + p.getPos().y + "), weight:" + p.getWeight());
+				}
+				System.out.println("Estimate position: (" + est.x + ", " + est.y + ").");
+				// resample
+				filter.resample();
 			}
-			System.out.println("Estimate position: (" + est.x + ", " + est.y + ").");
-			// resample
-			filter.resample();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
+		
 	}
 
 }

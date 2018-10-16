@@ -4,20 +4,26 @@ import java.util.Random;
 
 public class ParticleFilter {
 	
-	public Particle[] particles;
+	Particle[] particles;
 	int count = 0;
 	Point[] sensors;
-	int sensorCount = 0;
+	double[] measurements;
+	double sigma;
 	Random random = new Random();
 	double radius;
 	
 	// initialize a series of particles around a given center and radius
-	public ParticleFilter(int count, Point center, double radius, Point[] sensors) {
+	public ParticleFilter(int count, Point center, double radius, Point[] sensors,
+			double[] measurements, double sigma) throws IllegalArgumentException {
+		if (sensors.length != measurements.length) {
+			throw new IllegalArgumentException("Inconsistent length between sensors and measurements.");
+		}
 		this.count = count;
-		this.sensors = sensors;
+		this.sensors = sensors.clone();
 		this.radius = radius;
-		this.sensorCount = this.sensors.length;
 		this.particles = new Particle[this.count];
+		this.measurements = measurements.clone();
+		this.sigma = sigma;
 		for (int i = 0; i < this.count; ++i) {
 			// new particles have uniform weight
 			Particle particle = new Particle(center, 1.0/count);
@@ -27,9 +33,19 @@ public class ParticleFilter {
 		}
 	}
 	
+	// get a particle
+	public Particle getParticle(int num) {
+		return this.particles[num];
+	}
+	
+	// get all particles
+	public Particle[] getParticles() {
+		return this.particles.clone();
+	}
+	
 	// reassign normalized weights
-	public void reassignWeights(double[] measurements, double sigma) {
-		double[] probs = calProbability(measurements, sigma);
+	public void reassignWeights() {
+		double[] probs = calProbability();
 		double sum = 0.0;
 		for (int i = 0; i < count; ++i) {
 			sum += probs[i];
@@ -38,15 +54,14 @@ public class ParticleFilter {
 			this.particles[i].setWeight(probs[i] / sum);
 		}
 	}
-	
 	// get estimated location
 	// best be done after weights are reassigned
 	public Point estimate() {
 		double x = 0, y =0;
 		for (int i = 0; i < count; ++i) {
 			Particle particle = particles[i];
-			x += particle.pos.x * particle.weight;
-			y += particle.pos.y * particle.weight;
+			x += particle.getPos().x * particle.getWeight();
+			y += particle.getPos().y * particle.getWeight();
 		}
 		return new Point(x, y);
 	}
@@ -62,7 +77,7 @@ public class ParticleFilter {
 		double[] ranges = new double[count + 1];
 		ranges[0] = 0;
 		for (int i = 0; i < count; ++i) {
-			ranges[i + 1] = ranges[i] + particles[i].weight;
+			ranges[i + 1] = ranges[i] + particles[i].getWeight();
 		}
 		Particle[] newParticles = new Particle[count];
 		// resample
@@ -90,10 +105,10 @@ public class ParticleFilter {
 	
 	// calculate probabilities of all particles with regards of sensors
 	// measurements size of (sensorCount)
-	private double[] calProbability(double[] measurements, double sigma) {
+	private double[] calProbability() {
 		double[] probs = new double[count];
 		for (int i = 0; i < count; ++i) {
-			probs[i] = this.particles[i].probability(this.sensors, sigma, measurements);
+			probs[i] = this.particles[i].probability(sensors, sigma, measurements);
 		}
 		return probs;
 	}
